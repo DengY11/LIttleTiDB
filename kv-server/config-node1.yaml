@@ -1,0 +1,8 @@
+port: 50051
+raft_port: 60051
+pd_addr: "127.0.0.1:2379"
+
+log_level: info
+db_path: "/tmp/badger/node1"
+log_path: "logs/kv-server-node1.log"
+snapshot_path: "/tmp/snapshots/node1"

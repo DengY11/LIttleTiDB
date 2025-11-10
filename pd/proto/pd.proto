@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/your-username/mytidb/pd/proto";
+
+// PD service definition.
+service PD {
+  // GetRegion gets the region and its leader for a given key.
+  rpc GetRegion(GetRegionRequest) returns (GetRegionResponse) {}
+
+  // RegionHeartbeat is called by the leader of a region to report its state.
+  rpc RegionHeartbeat(RegionHeartbeatRequest) returns (RegionHeartbeatResponse);
+
+  // AllocID allocates a new unique ID.
+  rpc AllocID(AllocIDRequest) returns (AllocIDResponse) {}
+
+  // StoreHeartbeat is called by a store to report its state.
+  rpc StoreHeartbeat(StoreHeartbeatRequest) returns (StoreHeartbeatResponse) {}
+}
+
+message StoreStats {
+    uint64 store_id = 1;
+    uint64 capacity = 2;
+    uint64 available = 3;
+    uint32 region_count = 4;
+}
+
+message StoreHeartbeatRequest {
+    StoreStats stats = 1;
+}
+
+message StoreHeartbeatResponse {
+  // PD can send scheduling commands here in the future.
+}
+
+message Region {
+  uint64 id = 1;
+  bytes start_key = 2;
+  bytes end_key = 3;
+  repeated Peer peers = 4;
+}
+
+message Peer {
+    uint64 id = 1;
+    uint64 store_id = 2;
+    string addr = 3; // raft address
+    string client_addr = 4; // client address
+}
+
+message GetRegionRequest {
+  bytes key = 1;
+}
+
+message GetRegionResponse {
+  Region region = 1;
+  Peer leader = 2;
+}
+
+message RegionHeartbeatRequest {
+  Region region = 1;
+  Peer leader = 2;
+}
+
+message RegionHeartbeatResponse {
+  // PD can send scheduling commands here in the future.
+  ChangePeer change_peer = 1;
+}
+
+message ChangePeer {
+    Peer peer = 1;
+    ChangePeerType change_type = 2;
+}
+
+enum ChangePeerType {
+    ADD_NODE = 0;
+    REMOVE_NODE = 1;
+}
+
+message AllocIDRequest {}
+
+message AllocIDResponse {
+  uint64 id = 1;
+}
